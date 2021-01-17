@@ -10,6 +10,12 @@ import Foundation
 
 struct MemoryGame<CardContent> where CardContent: Equatable {
     var cards: Array<Card>
+    var score : Int = 0 {
+        didSet {
+            print("current score \(score)")
+        }
+    }
+
     var indexOfTheOneAndOnlyFacedUpCard: Int? {
         get {
              cards.indices.filter { cards[$0].isFaceUp }.only
@@ -25,17 +31,23 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
 
    mutating func choose(card: Card) {
         print("card chosen: \(card)")
+
     if let choosenIndex = cards.firstIndex(matching: card), !cards[choosenIndex].isFaceUp, !cards[choosenIndex].isMatched {
         if let potentialMatchIndex = indexOfTheOneAndOnlyFacedUpCard {
             if cards[choosenIndex].content == cards[potentialMatchIndex].content {
                 cards[choosenIndex].isMatched = true
                 cards[potentialMatchIndex].isMatched = true
+                score += 2
+            } else if cards[choosenIndex].didAppearBefore {
+                score -= 1
             }
             cards[choosenIndex].isFaceUp = true
+
         } else {
             indexOfTheOneAndOnlyFacedUpCard = choosenIndex
         }
-      }
+        cards[choosenIndex].didAppearBefore = true
+    }
     }
 
     func index(of card: Card) -> Int {
@@ -62,5 +74,6 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         var isMatched: Bool = false
         var content: CardContent
         var id: Int
+        var didAppearBefore: Bool = false
     }
 }
